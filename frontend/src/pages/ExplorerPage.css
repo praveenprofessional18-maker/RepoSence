@@ -17,6 +17,8 @@
 .explorer-filters label { display:grid; gap:6px; color:var(--muted); font-size:11px; font-weight:600; }
 .explorer-filters input,.explorer-filters select { min-width:0; min-height:38px; padding:8px 10px; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--text); font:inherit; }
 .explorer-empty-filter { color:var(--muted); font-size:12px; }
+.explorer-entry-summary { display:flex; gap:8px; margin-top:12px; color:var(--muted); font-size:10px; }
+.explorer-entry-summary span { padding:4px 8px; border:1px solid var(--border); border-radius:20px; }
 .explorer-entry-list { display:grid; gap:5px; margin:14px 0 0; padding:0; list-style:none; }
 .explorer-entry-list li { display:flex; align-items:center; gap:9px; min-width:0; padding:10px 12px; border:1px solid var(--border); border-radius:8px; font-size:12px; }
 .explorer-entry-list li svg { flex:none; color:var(--blue); }

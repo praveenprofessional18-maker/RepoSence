@@ -36,7 +36,12 @@ export default function ExplorerPage() {
     const matchesSearch = `${entry.name} ${entry.path}`.toLowerCase().includes(searchTerm.trim().toLowerCase())
     const matchesType = entryType === 'all' || (entryType === 'folders' ? entry.type === 'dir' : entry.type === 'file')
     return matchesSearch && matchesType
+  }).sort((left, right) => {
+    const typeOrder = Number(right.type === 'dir') - Number(left.type === 'dir')
+    return typeOrder || left.name.localeCompare(right.name, undefined, { numeric: true, sensitivity: 'base' })
   })
+  const folderCount = (repository?.entries || []).filter((entry) => entry.type === 'dir').length
+  const fileCount = (repository?.entries || []).filter((entry) => entry.type === 'file').length
 
   return (
     <div className="page-stack">
@@ -72,7 +77,11 @@ export default function ExplorerPage() {
                 <h2>{repository.fullName}</h2>
                 {repository.description && <p>{repository.description}</p>}
               </div>
-              <span>{repository.entries.length} root entries</span>
+              <span>{visibleEntries.length} of {repository.entries.length} entries</span>
+            </div>
+            <div className="explorer-entry-summary" aria-label="Repository root contents">
+              <span>{folderCount} folders</span>
+              <span>{fileCount} files</span>
             </div>
             <div className="explorer-filters">
               <label>
