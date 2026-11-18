@@ -6,6 +6,8 @@ import './ExplorerPage.css'
 export default function ExplorerPage() {
   const [repositoryInput, setRepositoryInput] = useState('')
   const [repository, setRepository] = useState(null)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [entryType, setEntryType] = useState('all')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -29,6 +31,12 @@ export default function ExplorerPage() {
       setIsLoading(false)
     }
   }
+
+  const visibleEntries = (repository?.entries || []).filter((entry) => {
+    const matchesSearch = `${entry.name} ${entry.path}`.toLowerCase().includes(searchTerm.trim().toLowerCase())
+    const matchesType = entryType === 'all' || (entryType === 'folders' ? entry.type === 'dir' : entry.type === 'file')
+    return matchesSearch && matchesType
+  })
 
   return (
     <div className="page-stack">
@@ -66,8 +74,22 @@ export default function ExplorerPage() {
               </div>
               <span>{repository.entries.length} root entries</span>
             </div>
+            <div className="explorer-filters">
+              <label>
+                <span>Search entries</span>
+                <input value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} placeholder="Filter by name or path" />
+              </label>
+              <label>
+                <span>Show</span>
+                <select value={entryType} onChange={(event) => setEntryType(event.target.value)}>
+                  <option value="all">All entries</option>
+                  <option value="folders">Folders</option>
+                  <option value="files">Files</option>
+                </select>
+              </label>
+            </div>
             <ul className="explorer-entry-list">
-              {repository.entries.map((entry) => (
+              {visibleEntries.map((entry) => (
                 <li key={entry.path}>
                   {entry.type === 'dir' ? <Folder size={16} aria-hidden="true" /> : <FileCode2 size={16} aria-hidden="true" />}
                   <span>{entry.name}</span>
@@ -75,6 +97,7 @@ export default function ExplorerPage() {
                 </li>
               ))}
             </ul>
+            {!visibleEntries.length && <p className="explorer-empty-filter">No entries match the current filters.</p>}
           </div>
         )}
       </section>
