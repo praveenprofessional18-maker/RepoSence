@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowUpRight, GitBranch, Search } from 'lucide-react'
+import { ArrowUpRight, Copy, GitBranch, Search, X } from 'lucide-react'
 import api from '../services/api'
 import { validateRepositoryInput } from '../utils/repositoryUrl'
 
@@ -9,6 +9,16 @@ export default function AnalyzePage() {
   const [analysis, setAnalysis] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [copyMessage, setCopyMessage] = useState('')
+
+  const copyRepositoryLink = async () => {
+    try {
+      await navigator.clipboard.writeText(analysis.repo.url)
+      setCopyMessage('Repository link copied.')
+    } catch {
+      setCopyMessage('Clipboard access is unavailable. Use the GitHub link instead.')
+    }
+  }
 
   const handleSubmit = async (event) => {
     event.preventDefault()
@@ -92,6 +102,11 @@ export default function AnalyzePage() {
               </a>
             </div>
             <p>{analysis.repo.description}</p>
+            <div className="analysis-result-actions">
+              <button className="button-secondary" type="button" onClick={copyRepositoryLink}><Copy size={14} /> Copy GitHub link</button>
+              <button className="button-secondary" type="button" onClick={() => { setAnalysis(null); setCopyMessage('') }}><X size={14} /> Clear result</button>
+            </div>
+            {copyMessage && <p className="analysis-copy-message">{copyMessage}</p>}
             <dl className="analysis-summary">
               <div><dt>Stars</dt><dd>{analysis.summary.stars}</dd></div>
               <div><dt>Forks</dt><dd>{analysis.summary.forks}</dd></div>
