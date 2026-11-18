@@ -3,6 +3,12 @@ import { FileCode2, Folder, Search } from 'lucide-react'
 import { fetchRepositoryContents, parseGitHubRepository } from '../services/githubRepository'
 import './ExplorerPage.css'
 
+function formatBytes(bytes) {
+  if (!bytes) return ''
+  if (bytes < 1024) return `${bytes} B`
+  return `${(bytes / 1024).toFixed(1)} KB`
+}
+
 export default function ExplorerPage() {
   const [repositoryInput, setRepositoryInput] = useState('')
   const [repository, setRepository] = useState(null)
@@ -34,14 +40,14 @@ export default function ExplorerPage() {
 
   const visibleEntries = (repository?.entries || []).filter((entry) => {
     const matchesSearch = `${entry.name} ${entry.path}`.toLowerCase().includes(searchTerm.trim().toLowerCase())
-    const matchesType = entryType === 'all' || (entryType === 'folders' ? entry.type === 'dir' : entry.type === 'file')
+    const matchesType = entryType === 'all' || (entryType === 'folders' ? entry.type === 'dir' : entry.type !== 'dir')
     return matchesSearch && matchesType
   }).sort((left, right) => {
     const typeOrder = Number(right.type === 'dir') - Number(left.type === 'dir')
     return typeOrder || left.name.localeCompare(right.name, undefined, { numeric: true, sensitivity: 'base' })
   })
   const folderCount = (repository?.entries || []).filter((entry) => entry.type === 'dir').length
-  const fileCount = (repository?.entries || []).filter((entry) => entry.type === 'file').length
+  const fileCount = (repository?.entries || []).filter((entry) => entry.type !== 'dir').length
 
   return (
     <div className="page-stack">
@@ -101,8 +107,8 @@ export default function ExplorerPage() {
               {visibleEntries.map((entry) => (
                 <li key={entry.path}>
                   {entry.type === 'dir' ? <Folder size={16} aria-hidden="true" /> : <FileCode2 size={16} aria-hidden="true" />}
-                  <span>{entry.name}</span>
-                  <small>{entry.type === 'dir' ? 'Folder' : 'File'}</small>
+                  <a href={entry.html_url} target="_blank" rel="noreferrer">{entry.name}</a>
+                  <small>{entry.type === 'dir' ? 'Folder' : entry.type === 'file' ? formatBytes(entry.size) : entry.type}</small>
                 </li>
               ))}
             </ul>

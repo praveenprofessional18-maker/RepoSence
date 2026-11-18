@@ -22,6 +22,8 @@
 .explorer-entry-list { display:grid; gap:5px; margin:14px 0 0; padding:0; list-style:none; }
 .explorer-entry-list li { display:flex; align-items:center; gap:9px; min-width:0; padding:10px 12px; border:1px solid var(--border); border-radius:8px; font-size:12px; }
 .explorer-entry-list li svg { flex:none; color:var(--blue); }
-.explorer-entry-list li span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.explorer-entry-list li a { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.explorer-entry-list li a:hover { color:var(--blue); }
+.explorer-entry-list li a:focus-visible { outline:2px solid var(--blue); outline-offset:2px; }
 .explorer-entry-list li small { margin-left:auto; color:var(--muted); }
 @media(max-width:600px) { .explorer-input-row { flex-direction:column; } .explorer-input-row button { align-self:flex-start; } .explorer-repository-heading { flex-direction:column; } .explorer-filters { grid-template-columns:1fr; } }
