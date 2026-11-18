@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowUpRight, Copy, GitBranch, Search, X } from 'lucide-react'
+import { ArrowUpRight, Copy, GitBranch, LoaderCircle, Search, X } from 'lucide-react'
 import api from '../services/api'
 import { validateRepositoryInput } from '../utils/repositoryUrl'
 
@@ -30,7 +30,6 @@ export default function AnalyzePage() {
 
     setIsLoading(true)
     setError('')
-    setAnalysis(null)
 
     try {
       const response = await api.post('/analyze', {
@@ -38,6 +37,7 @@ export default function AnalyzePage() {
         branch: branch.trim() || undefined
       })
       setAnalysis(response.data)
+      setCopyMessage('')
     } catch (requestError) {
       setError(requestError.response?.data?.error || requestError.message || 'Unable to analyze this repository.')
     } finally {
@@ -62,7 +62,7 @@ export default function AnalyzePage() {
           <Search size={18} className="panel-heading-icon" aria-hidden="true" />
         </div>
 
-        <form className="analyze-form" onSubmit={handleSubmit}>
+        <form id="repository-analysis-form" className="analyze-form" onSubmit={handleSubmit}>
           <label htmlFor="repository-url">GitHub repository</label>
           <input
             id="repository-url"
@@ -83,12 +83,18 @@ export default function AnalyzePage() {
             autoComplete="off"
           />
           <button className="button-primary analyze-submit" type="submit" disabled={isLoading}>
-            <GitBranch size={16} />
+            {isLoading ? <LoaderCircle size={16} className="spinner" /> : <GitBranch size={16} />}
             {isLoading ? 'Analyzing repository…' : 'Analyze repository'}
           </button>
         </form>
 
-        {error && <p className="analyze-error">{error}</p>}
+        {isLoading && <p className="analyze-loading" role="status" aria-live="polite">Checking repository details and languages…</p>}
+        {error && (
+          <div className="analyze-error" role="alert">
+            <p>{error}</p>
+            <button className="button-secondary" type="submit" form="repository-analysis-form" disabled={isLoading}>Try again</button>
+          </div>
+        )}
 
         {analysis && (
           <article className="analysis-result">

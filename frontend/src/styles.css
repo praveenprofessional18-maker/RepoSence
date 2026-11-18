@@ -80,7 +80,11 @@ h1 { font-size:clamp(26px,3vw,35px); letter-spacing:-1.4px; margin:10px 0 8px; }
 .analyze-form input::placeholder { color:var(--muted); opacity:.8; }
 .analyze-submit { justify-self:start; margin-top:8px; border:0; cursor:pointer; }
 .analyze-submit:disabled { cursor:wait; opacity:.7; }
-.analyze-error { margin:18px 0 0; color:#dc2626; font-size:13px; }
+.analyze-error { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:18px 0 0; padding:12px; border:1px solid #ef444466; border-radius:9px; color:#dc2626; font-size:13px; }
+.analyze-error p { margin:0; }
+.analyze-loading { display:flex; align-items:center; gap:8px; margin:18px 0 0; color:var(--muted); font-size:12px; }
+.spinner { animation:spin .9s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
 .analysis-result { margin-top:26px; padding:20px; border:1px solid var(--border); border-radius:12px; background:var(--bg); }
 .analysis-result-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; }
 .analysis-result-heading h2 { margin:6px 0 0; font-size:19px; }
