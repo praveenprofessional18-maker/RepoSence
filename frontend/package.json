@@ -16,10 +16,11 @@
     "react-dom": "latest",
     "react-markdown": "latest",
     "react-router-dom": "latest",
-    "recharts": "latest",
-    "react-syntax-highlighter": "latest"
+    "react-syntax-highlighter": "latest",
+    "recharts": "latest"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.5",
     "autoprefixer": "latest",
     "postcss": "latest",
     "tailwindcss": "latest",

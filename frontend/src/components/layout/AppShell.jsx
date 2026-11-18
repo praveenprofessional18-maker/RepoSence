@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom'
-import { Activity, Bot, ChevronDown, Code2, FileCode2, FileText, FolderTree, History, LayoutDashboard, Moon, Search, Settings, Sun, Github } from 'lucide-react'
+import { Activity, Bot, ChevronDown, Code2, FileCode2, FileText, FolderTree, History, LayoutDashboard, Moon, Search, Settings, Sun, GitBranch } from 'lucide-react'
 import { useTheme } from '../../context/ThemeContext'
 
 const navItems = [
@@ -17,7 +17,7 @@ export default function AppShell() {
   return (
     <div className="app-shell">
       <aside className="sidebar">
-        <div className="brand"><span className="brand-mark"><Github size={20}/></span><span>Repo<span className="brand-accent">Sense</span></span></div>
+        <div className="brand"><span className="brand-mark"><GitBranch size={20}/></span><span>Repo<span className="brand-accent">Sense</span></span></div>
         <div className="workspace-label">WORKSPACE</div>
         <nav className="nav-list">
           {navItems.map(({ to, label, icon: Icon }) => (
@@ -44,3 +44,4 @@ export default function AppShell() {
     </div>
   )
 }
+
