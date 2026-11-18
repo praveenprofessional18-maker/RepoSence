@@ -1,14 +1,15 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { resolveThemePreference, THEME_STORAGE_KEY } from '../utils/themePreference'
 
 const ThemeContext = createContext(null)
 
 export function ThemeProvider({ children }) {
-  const [theme, setTheme] = useState(() => localStorage.getItem('reposense-theme') || 'dark')
+  const [theme, setTheme] = useState(() => resolveThemePreference(localStorage.getItem(THEME_STORAGE_KEY), true))
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark')
     document.documentElement.dataset.theme = theme
-    localStorage.setItem('reposense-theme', theme)
+    localStorage.setItem(THEME_STORAGE_KEY, theme)
   }, [theme])
 
   const value = useMemo(() => ({
