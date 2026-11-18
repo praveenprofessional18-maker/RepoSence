@@ -6,7 +6,14 @@ import './ReadmePage.css'
 export default function ReadmePage() {
   const [projectName, setProjectName] = useState('')
   const [description, setDescription] = useState('')
-  const markdown = useMemo(() => buildReadmeMarkdown({ projectName: projectName || 'Project', description }), [projectName, description])
+  const [technologies, setTechnologies] = useState('')
+  const [features, setFeatures] = useState('')
+  const markdown = useMemo(() => buildReadmeMarkdown({
+    projectName: projectName || 'Project',
+    description,
+    technologies,
+    features
+  }), [projectName, description, technologies, features])
 
   return (
     <div className="page-stack">
@@ -30,6 +37,10 @@ export default function ReadmePage() {
             <input id="readme-project-name" value={projectName} onChange={(event) => setProjectName(event.target.value)} placeholder="My project" />
             <label htmlFor="readme-description">Description</label>
             <textarea id="readme-description" value={description} onChange={(event) => setDescription(event.target.value)} placeholder="What does this project do?" rows={5} />
+            <label htmlFor="readme-technologies">Tech stack <span>(comma-separated)</span></label>
+            <input id="readme-technologies" value={technologies} onChange={(event) => setTechnologies(event.target.value)} placeholder="React, Vite, Node.js" />
+            <label htmlFor="readme-features">Features <span>(one per line)</span></label>
+            <textarea id="readme-features" value={features} onChange={(event) => setFeatures(event.target.value)} placeholder={'Repository analysis\nTechnology insights'} rows={4} />
           </div>
         </section>
 
