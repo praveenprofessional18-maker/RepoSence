@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { FileText } from 'lucide-react'
-import { buildReadmeMarkdown } from '../utils/readmeBuilder'
+import { buildReadmeMarkdown, validateReadmeInput } from '../utils/readmeBuilder'
 import './ReadmePage.css'
 
 export default function ReadmePage() {
@@ -8,12 +8,27 @@ export default function ReadmePage() {
   const [description, setDescription] = useState('')
   const [technologies, setTechnologies] = useState('')
   const [features, setFeatures] = useState('')
+  const [validationMessage, setValidationMessage] = useState('')
+  const [isValidated, setIsValidated] = useState(false)
   const markdown = useMemo(() => buildReadmeMarkdown({
     projectName: projectName || 'Project',
     description,
     technologies,
     features
   }), [projectName, description, technologies, features])
+
+  const updateField = (setter) => (event) => {
+    setter(event.target.value)
+    setIsValidated(false)
+    setValidationMessage('')
+  }
+
+  const validateDraft = (event) => {
+    event.preventDefault()
+    const message = validateReadmeInput({ projectName, description })
+    setValidationMessage(message || 'README draft is ready to export.')
+    setIsValidated(!message)
+  }
 
   return (
     <div className="page-stack">
@@ -32,16 +47,18 @@ export default function ReadmePage() {
             </div>
             <FileText size={18} aria-hidden="true" />
           </div>
-          <div className="readme-fields">
+          <form className="readme-fields" noValidate onSubmit={validateDraft}>
             <label htmlFor="readme-project-name">Project name</label>
-            <input id="readme-project-name" value={projectName} onChange={(event) => setProjectName(event.target.value)} placeholder="My project" />
+            <input id="readme-project-name" value={projectName} onChange={updateField(setProjectName)} placeholder="My project" required />
             <label htmlFor="readme-description">Description</label>
-            <textarea id="readme-description" value={description} onChange={(event) => setDescription(event.target.value)} placeholder="What does this project do?" rows={5} />
+            <textarea id="readme-description" value={description} onChange={updateField(setDescription)} placeholder="What does this project do?" rows={5} required />
             <label htmlFor="readme-technologies">Tech stack <span>(comma-separated)</span></label>
-            <input id="readme-technologies" value={technologies} onChange={(event) => setTechnologies(event.target.value)} placeholder="React, Vite, Node.js" />
+            <input id="readme-technologies" value={technologies} onChange={updateField(setTechnologies)} placeholder="React, Vite, Node.js" />
             <label htmlFor="readme-features">Features <span>(one per line)</span></label>
-            <textarea id="readme-features" value={features} onChange={(event) => setFeatures(event.target.value)} placeholder={'Repository analysis\nTechnology insights'} rows={4} />
-          </div>
+            <textarea id="readme-features" value={features} onChange={updateField(setFeatures)} placeholder={'Repository analysis\nTechnology insights'} rows={4} />
+            <button className="button-primary" type="submit">Validate README</button>
+            {validationMessage && <p className={isValidated ? 'readme-validation-success' : 'readme-validation-error'} role={isValidated ? 'status' : 'alert'}>{validationMessage}</p>}
+          </form>
         </section>
 
         <section className="panel readme-preview" aria-labelledby="readme-preview-title">

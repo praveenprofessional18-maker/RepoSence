@@ -5,6 +5,10 @@
 .readme-fields label span { color:var(--muted); font-weight:400; }
 .readme-fields input,.readme-fields textarea { width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--text); font:inherit; font-size:13px; }
 .readme-fields textarea { resize:vertical; line-height:1.6; }
+.readme-fields button { justify-self:start; margin-top:8px; }
+.readme-validation-error,.readme-validation-success { margin:0; font-size:12px; }
+.readme-validation-error { color:#dc2626; }
+.readme-validation-success { color:#16a34a; }
 .readme-fields input:focus-visible,.readme-fields textarea:focus-visible { outline:2px solid var(--blue); outline-offset:2px; }
 .readme-preview pre { min-height:250px; margin:18px 0 0; padding:16px; overflow:auto; border:1px solid var(--border); border-radius:9px; background:var(--bg); color:var(--text); font:12px/1.7 'DM Mono',monospace; white-space:pre-wrap; overflow-wrap:anywhere; }
 @media(max-width:850px) { .readme-layout { grid-template-columns:1fr; } }

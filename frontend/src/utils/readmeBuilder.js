@@ -5,6 +5,12 @@ function normalizeLines(value) {
     .filter(Boolean)
 }
 
+export function validateReadmeInput({ projectName, description }) {
+  if (!projectName.trim()) return 'Enter a project name.'
+  if (!description.trim()) return 'Add a short project description.'
+  return ''
+}
+
 export function buildReadmeMarkdown({ projectName, description, technologies = '', features = '' }) {
   const title = projectName.trim()
   const summary = description.trim()
