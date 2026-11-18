@@ -36,6 +36,25 @@ export function parseGitHubRepository(value) {
   return { owner, repo }
 }
 
+export function filterRepositoryEntries(entries, searchTerm = '', entryType = 'all') {
+  const query = searchTerm.trim().toLowerCase()
+  return entries.filter((entry) => {
+    const matchesSearch = `${entry.name} ${entry.path}`.toLowerCase().includes(query)
+    const matchesType = entryType === 'all' || (entryType === 'folders' ? entry.type === 'dir' : entry.type !== 'dir')
+    return matchesSearch && matchesType
+  }).sort((left, right) => {
+    const typeOrder = Number(right.type === 'dir') - Number(left.type === 'dir')
+    return typeOrder || left.name.localeCompare(right.name, undefined, { numeric: true, sensitivity: 'base' })
+  })
+}
+
+export function countRepositoryEntries(entries) {
+  return entries.reduce((counts, entry) => {
+    counts[entry.type === 'dir' ? 'folders' : 'files'] += 1
+    return counts
+  }, { folders: 0, files: 0 })
+}
+
 async function requestJson(url, signal) {
   const response = await fetch(url, {
     signal,
