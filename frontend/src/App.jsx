@@ -2,9 +2,9 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import AppShell from './components/layout/AppShell'
 import Dashboard from './pages/Dashboard'
 import PlaceholderPage from './pages/PlaceholderPage'
+import AnalyzePage from './pages/AnalyzePage'
 
 const pages = [
-  ['analyze', 'Repository Analyzer', 'Submit a GitHub repository and inspect its metadata.'],
   ['explorer', 'Structure Explorer', 'Browse repository folders, files and selected source content.'],
   ['technologies', 'Technology Stack', 'Understand the languages, frameworks and tools used by a repository.'],
   ['insights', 'AI Insights', 'Review AI-generated project explanations and code quality recommendations.'],
@@ -17,6 +17,7 @@ export default function App() {
     <Route path="/" element={<Navigate to="/dashboard" replace />} />
     <Route element={<AppShell />}>
       <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/analyze" element={<AnalyzePage />} />
       {pages.map(([path, title, description]) => <Route key={path} path={`/${path}`} element={<PlaceholderPage title={title} description={description} />} />)}
   </Route>
   <Route path="*" element={<Navigate to="/dashboard" replace />} />
