@@ -57,7 +57,7 @@ export default function AppShell() {
           <button className="icon-button menu-button" type="button" aria-label="Open navigation" aria-expanded={sidebarOpen} aria-controls="workspace-navigation" onClick={() => setSidebarOpen(true)}><Menu size={19}/></button>
           <div className="breadcrumb"><span>Workspace</span><span className="crumb-sep">/</span><strong>{currentPage}</strong></div>
         </div>
-          <div className="top-actions"><span className="status-dot"/> <span className="status-text">All systems operational</span><button className="icon-button" aria-label="Settings"><Settings size={18}/></button></div>
+          <div className="top-actions"><span className="status-dot" aria-hidden="true"/> <span className="status-text">Workspace ready</span><button className="icon-button" type="button" aria-label="Settings"><Settings size={18}/></button></div>
         </header>
         <div className="page-content"><Outlet /></div>
       </main>

@@ -101,7 +101,7 @@ export default function Dashboard() {
             <strong>No analysis activity yet</strong>
 
             <span>
-              Analyze a public GitBranch repository to start building
+              Analyze a public GitHub repository to start building
               your workspace.
             </span>
 
@@ -124,7 +124,7 @@ export default function Dashboard() {
             <span>01</span>
             <div>
               <strong>Connect a repository</strong>
-              <p>Paste a public GitBranch repository URL.</p>
+              <p>Paste a public GitHub repository URL.</p>
             </div>
           </div>
 
