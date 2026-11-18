@@ -1,0 +1,9 @@
+.readme-layout { display:grid; grid-template-columns:minmax(260px,.8fr) minmax(0,1.2fr); gap:16px; align-items:start; }
+.readme-editor,.readme-preview { min-width:0; }
+.readme-fields { display:grid; gap:9px; margin-top:20px; }
+.readme-fields label { margin-top:5px; font-size:12px; font-weight:700; }
+.readme-fields input,.readme-fields textarea { width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--text); font:inherit; font-size:13px; }
+.readme-fields textarea { resize:vertical; line-height:1.6; }
+.readme-fields input:focus-visible,.readme-fields textarea:focus-visible { outline:2px solid var(--blue); outline-offset:2px; }
+.readme-preview pre { min-height:250px; margin:18px 0 0; padding:16px; overflow:auto; border:1px solid var(--border); border-radius:9px; background:var(--bg); color:var(--text); font:12px/1.7 'DM Mono',monospace; white-space:pre-wrap; overflow-wrap:anywhere; }
+@media(max-width:850px) { .readme-layout { grid-template-columns:1fr; } }
