@@ -24,6 +24,27 @@ export function ThemeProvider({ children }) {
   }, [hasSavedPreference])
 
   useEffect(() => {
+    const handleStorageChange = (event) => {
+      if (event.key !== THEME_STORAGE_KEY && event.key !== null) return
+
+      const savedPreference = normalizeThemePreference(event.newValue)
+      if (savedPreference) {
+        setHasSavedPreference(true)
+        setTheme(savedPreference)
+        return
+      }
+
+      setHasSavedPreference(false)
+      const prefersDark = typeof window.matchMedia === 'function'
+        && window.matchMedia('(prefers-color-scheme: dark)').matches
+      setTheme(prefersDark ? 'dark' : 'light')
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+    return () => window.removeEventListener('storage', handleStorageChange)
+  }, [])
+
+  useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark')
     document.documentElement.dataset.theme = theme
     if (hasSavedPreference) localStorage.setItem(THEME_STORAGE_KEY, theme)
