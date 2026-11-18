@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
-import { normalizeThemePreference, resolveThemePreference, THEME_STORAGE_KEY } from '../utils/themePreference'
+import { getThemeColor, normalizeThemePreference, resolveThemePreference, THEME_STORAGE_KEY } from '../utils/themePreference'
 
 const ThemeContext = createContext(null)
 
@@ -47,6 +47,8 @@ export function ThemeProvider({ children }) {
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark')
     document.documentElement.dataset.theme = theme
+    document.documentElement.style.colorScheme = theme
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', getThemeColor(theme))
     if (hasSavedPreference) localStorage.setItem(THEME_STORAGE_KEY, theme)
   }, [theme, hasSavedPreference])
 
