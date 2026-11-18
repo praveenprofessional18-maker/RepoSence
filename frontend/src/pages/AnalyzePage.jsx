@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { ArrowUpRight, GitBranch, Search } from 'lucide-react'
 import api from '../services/api'
+import { validateRepositoryInput } from '../utils/repositoryUrl'
 
 export default function AnalyzePage() {
   const [repoUrl, setRepoUrl] = useState('')
@@ -11,8 +12,9 @@ export default function AnalyzePage() {
 
   const handleSubmit = async (event) => {
     event.preventDefault()
-    if (!repoUrl.trim()) {
-      setError('Enter a GitHub repository URL or owner/repository.')
+    const validationError = validateRepositoryInput(repoUrl)
+    if (validationError) {
+      setError(validationError)
       return
     }
 
