@@ -11,4 +11,8 @@
 .readme-validation-success { color:#16a34a; }
 .readme-fields input:focus-visible,.readme-fields textarea:focus-visible { outline:2px solid var(--blue); outline-offset:2px; }
 .readme-preview pre { min-height:250px; margin:18px 0 0; padding:16px; overflow:auto; border:1px solid var(--border); border-radius:9px; background:var(--bg); color:var(--text); font:12px/1.7 'DM Mono',monospace; white-space:pre-wrap; overflow-wrap:anywhere; }
+.readme-export-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:16px; }
+.readme-export-actions .button-secondary { display:inline-flex; align-items:center; gap:7px; margin:0; cursor:pointer; }
+.readme-export-actions button:disabled { cursor:not-allowed; opacity:.5; }
+.readme-export-message { margin:10px 0 0; color:var(--muted); font-size:11px; }
 @media(max-width:850px) { .readme-layout { grid-template-columns:1fr; } }

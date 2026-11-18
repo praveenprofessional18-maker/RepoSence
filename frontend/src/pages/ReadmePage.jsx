@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { FileText } from 'lucide-react'
+import { ClipboardCopy, Download, FileText } from 'lucide-react'
 import { buildReadmeMarkdown, validateReadmeInput } from '../utils/readmeBuilder'
 import './ReadmePage.css'
 
@@ -10,6 +10,7 @@ export default function ReadmePage() {
   const [features, setFeatures] = useState('')
   const [validationMessage, setValidationMessage] = useState('')
   const [isValidated, setIsValidated] = useState(false)
+  const [exportMessage, setExportMessage] = useState('')
   const markdown = useMemo(() => buildReadmeMarkdown({
     projectName: projectName || 'Project',
     description,
@@ -21,6 +22,7 @@ export default function ReadmePage() {
     setter(event.target.value)
     setIsValidated(false)
     setValidationMessage('')
+    setExportMessage('')
   }
 
   const validateDraft = (event) => {
@@ -28,6 +30,26 @@ export default function ReadmePage() {
     const message = validateReadmeInput({ projectName, description })
     setValidationMessage(message || 'README draft is ready to export.')
     setIsValidated(!message)
+  }
+
+  const copyMarkdown = async () => {
+    try {
+      await navigator.clipboard.writeText(markdown)
+      setExportMessage('Markdown copied to clipboard.')
+    } catch {
+      setExportMessage('Clipboard access is unavailable. Select and copy the preview instead.')
+    }
+  }
+
+  const downloadMarkdown = () => {
+    const filename = projectName.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'readme'
+    const downloadUrl = URL.createObjectURL(new Blob([markdown], { type: 'text/markdown;charset=utf-8' }))
+    const link = document.createElement('a')
+    link.href = downloadUrl
+    link.download = `${filename}.md`
+    link.click()
+    URL.revokeObjectURL(downloadUrl)
+    setExportMessage('README file downloaded.')
   }
 
   return (
@@ -68,6 +90,11 @@ export default function ReadmePage() {
               <p>README.md</p>
             </div>
           </div>
+          <div className="readme-export-actions">
+            <button className="button-secondary" type="button" onClick={copyMarkdown} disabled={!isValidated}><ClipboardCopy size={14} /> Copy Markdown</button>
+            <button className="button-secondary" type="button" onClick={downloadMarkdown} disabled={!isValidated}><Download size={14} /> Download .md</button>
+          </div>
+          {exportMessage && <p className="readme-export-message" role="status">{exportMessage}</p>}
           <pre>{markdown}</pre>
         </section>
       </div>
