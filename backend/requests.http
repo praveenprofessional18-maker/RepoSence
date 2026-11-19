@@ -1,0 +1,171 @@
+@baseUrl = http://localhost:5000
+@token = replace-with-a-local-jwt-after-login
+@analysisId = replace-with-an-analysis-id
+
+### Health
+GET {{baseUrl}}/api/health
+
+### Register a local test account
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "RepoSense Developer",
+  "email": "developer@example.test",
+  "password": "change-this-local-password"
+}
+
+### Login
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "developer@example.test",
+  "password": "change-this-local-password"
+}
+
+### Current user
+GET {{baseUrl}}/api/auth/me
+Authorization: Bearer {{token}}
+
+### Analyze a public repository
+POST {{baseUrl}}/api/github/analyze
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "url": "https://github.com/octocat/Hello-World"
+}
+
+### Repository metadata
+GET {{baseUrl}}/api/github/metadata/octocat/Hello-World
+
+### Repository tree
+GET {{baseUrl}}/api/github/tree/octocat/Hello-World
+
+### Repository languages
+GET {{baseUrl}}/api/github/languages/octocat/Hello-World
+
+### Read a text file
+GET {{baseUrl}}/api/github/file?owner=octocat&repo=Hello-World&path=README
+
+### Explain code (provide repository/file content only when appropriate)
+POST {{baseUrl}}/api/ai/explain
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "file": "export function add(a, b) { return a + b; }",
+  "filePath": "src/math.js",
+  "fileLanguage": "JavaScript",
+  "level": "Beginner"
+}
+
+### Review code quality
+POST {{baseUrl}}/api/ai/code-quality
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "repository": {
+    "fullName": "octocat/Hello-World",
+    "description": "A public example repository"
+  }
+}
+
+### Generate a README
+POST {{baseUrl}}/api/ai/readme
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "type": "readme",
+  "language": "English",
+  "baseDraft": "# Example project\n\nVerify setup commands before publishing."
+}
+
+### Generate another documentation type
+POST {{baseUrl}}/api/ai/document
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "type": "onboarding",
+  "language": "English",
+  "tone": "Professional",
+  "sections": { "setup": true, "architecture": true },
+  "baseDraft": "# Onboarding\n\nAdd verified project instructions here."
+}
+
+### Summarize repository information
+POST {{baseUrl}}/api/ai/summary
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "repository": {
+    "fullName": "octocat/Hello-World",
+    "description": "A public example repository"
+  }
+}
+
+### Compare repository summaries
+POST {{baseUrl}}/api/ai/compare
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "repos": [
+    { "fullName": "owner/project-a", "language": "JavaScript" },
+    { "fullName": "owner/project-b", "language": "TypeScript" }
+  ],
+  "metrics": [],
+  "categoryWinners": [],
+  "overallWinner": { "winner": "tie" }
+}
+
+### Ask for improvement guidance
+POST {{baseUrl}}/api/ai/fix
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "repository": { "fullName": "octocat/Hello-World" },
+  "prompt": "Describe a safe approach to improve the supplied recommendation."
+}
+
+### Chat with repository context
+POST {{baseUrl}}/api/ai/chat
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "analysisId": "{{analysisId}}",
+  "messages": [{ "role": "user", "content": "What does this module do?" }],
+  "contextFiles": [{ "path": "src/index.js", "content": "export const ready = true;" }]
+}
+
+### Search and page through history
+GET {{baseUrl}}/api/history?search=octocat&sort=newest&page=1&limit=20
+Authorization: Bearer {{token}}
+
+### Retrieve an owned analysis
+GET {{baseUrl}}/api/history/{{analysisId}}
+Authorization: Bearer {{token}}
+
+### List bookmarked analyses
+GET {{baseUrl}}/api/history/bookmarked?page=1&limit=20
+Authorization: Bearer {{token}}
+
+### Bookmark an analysis
+PATCH {{baseUrl}}/api/history/{{analysisId}}/bookmark
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "bookmarked": true
+}
+
+### Delete an owned analysis
+DELETE {{baseUrl}}/api/history/{{analysisId}}
+Authorization: Bearer {{token}}
