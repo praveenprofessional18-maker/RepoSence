@@ -1,0 +1,14 @@
+node_modules/
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
+
+dist/
+backend/dist/
+*.zip
+*.log
+.DS_Store
+.vscode/
