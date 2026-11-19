@@ -1,0 +1,33 @@
+.graph-surface .react-flow__controls {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .14);
+}
+
+.graph-surface .react-flow__controls-button {
+  border-bottom-color: var(--border);
+  background: var(--panel);
+  color: var(--text);
+  fill: var(--text);
+}
+
+.graph-surface .react-flow__controls-button:hover {
+  background: var(--panel2);
+}
+
+.graph-surface .react-flow__minimap-mask {
+  fill: color-mix(in srgb, var(--bg) 75%, transparent);
+  stroke: var(--border);
+}
+
+.graph-canvas-container:fullscreen {
+  display: flex;
+  padding: 16px;
+  background: var(--bg);
+}
+
+.graph-canvas-container:fullscreen .graph-surface {
+  width: 100%;
+  height: calc(100vh - 32px);
+}
