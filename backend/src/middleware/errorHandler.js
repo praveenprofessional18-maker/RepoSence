@@ -4,7 +4,15 @@ export function errorHandler(error, req, res, next) {
     return;
   }
 
-  if (error?.name === "ZodError") {
+    if (error?.name === "ZodError") {
+    if (process.env.NODE_ENV !== "production") {
+      console.warn(
+        "[validation]",
+        req.method,
+        req.originalUrl,
+        JSON.stringify(error.issues.map((i) => ({ path: i.path.join("."), message: i.message })))
+      );
+    }
     res.status(400).json({
       success: false,
       message: "Request validation failed.",
@@ -37,9 +45,14 @@ export function errorHandler(error, req, res, next) {
     ? requestedStatus
     : 500;
   const message = statusCode >= 500
-    ? "Internal server error."
-    : error.publicMessage || error.message || "Request failed.";
-  const response = { success: false, message };
+  ? "Internal server error."
+  : error.publicMessage || error.message || "Request failed.";
+
+if (statusCode >= 500) {
+  console.error("[server error]", error?.status || error?.statusCode || "", error?.message || error);
+}
+
+const response = { success: false, message };
 
   if (Array.isArray(error.publicErrors)) {
     response.errors = error.publicErrors;
