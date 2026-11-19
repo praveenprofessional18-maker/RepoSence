@@ -2,13 +2,31 @@
 
 AI-powered GitHub repository analyzer.
 
-## Stack
-- Frontend: React, Vite, Tailwind CSS, React Router, Axios, Recharts, Lucide
-- Backend: Node.js, Express, Mongoose
-- Integrations: GitHub REST API, Google Gemini API
-- Database: MongoDB
+## Overview
+
+RepoSense helps developers analyze GitHub repositories and understand their project structure, technologies, development activity, and insights using AI.
+
+## Tech Stack
+
+- **Frontend:** React, Vite, Tailwind CSS, React Router, Axios, Recharts, Lucide
+- **Backend:** Node.js, Express, Mongoose
+- **Integrations:** GitHub REST API, Google Gemini API
+- **Database:** MongoDB
+
+## Frontend Pages
+
+- Home Page
+- Dashboard
+- Login Page
+- Register Page
+- Repository Analysis Page
+- Repository Explorer Page
+- Repository History Page
+- Repository Insights Page
+- Technologies Page
 
 ## Prerequisites
+
 - Node.js 20+
 - MongoDB connection string
 - GitHub token (optional for public repositories; useful for higher API limits)
@@ -17,6 +35,7 @@ AI-powered GitHub repository analyzer.
 ## Setup
 
 ### Backend
+
 ```bash
 cd backend
 npm install
@@ -25,13 +44,46 @@ npm run dev
 ```
 
 ### Frontend
+
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-Configure `VITE_API_URL=http://localhost:5000/api` in `frontend/.env`.
+Configure the API URL in `frontend/.env`:
 
-## Current scaffold
-This initial scaffold establishes the frontend, backend, theme switching, health endpoint and documentation. Repository analysis and AI endpoints are added in subsequent implementation phases.
+```env
+VITE_API_URL=http://localhost:5000/api
+```
+
+## Features
+
+- GitHub repository analysis interface
+- Repository exploration
+- Repository history
+- Repository insights
+- Technology overview
+- User login and registration interfaces
+- Theme switching
+
+## Development Status
+
+The project includes the frontend pages, backend scaffold, theme switching, health endpoint, and documentation. Repository analysis and AI endpoints are being developed in subsequent implementation phases.
+
+## License
+
+See the repository for license information.
+
+## Frontend Pages
+
+RepoSense includes the following frontend pages:
+
+- Home
+- Dashboard
+- Login and Registration
+- Repository Analysis
+- Repository Explorer
+- Repository History
+- Repository Insights
+- Technologies
