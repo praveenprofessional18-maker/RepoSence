@@ -1,5 +1,6 @@
-import { NavLink, Outlet } from 'react-router-dom'
-import { Activity, Bot, ChevronDown, Code2, FileCode2, FileText, FolderTree, History, LayoutDashboard, Moon, Search, Settings, Sun, GitBranch } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { NavLink, Outlet, useLocation } from 'react-router-dom'
+import { Activity, Bot, ChevronDown, Code2, FileCode2, FileText, FolderTree, History, LayoutDashboard, Menu, Moon, Search, Settings, Sun, GitBranch } from 'lucide-react'
 import { useTheme } from '../../context/ThemeContext'
 
 const navItems = [
@@ -14,14 +15,30 @@ const navItems = [
 
 export default function AppShell() {
   const { theme, toggleTheme } = useTheme()
+  const { pathname } = useLocation()
+  const currentPage = navItems.find(({ to }) => to === pathname)?.label || 'Repository intelligence'
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  useEffect(() => {
+    if (!sidebarOpen) return undefined
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') setSidebarOpen(false)
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [sidebarOpen])
+
   return (
     <div className="app-shell">
-      <aside className="sidebar">
+      {sidebarOpen && <button className="sidebar-backdrop" type="button" aria-label="Close navigation" onClick={() => setSidebarOpen(false)} />}
+      <aside id="workspace-navigation" className={`sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
         <div className="brand"><span className="brand-mark"><GitBranch size={20}/></span><span>Repo<span className="brand-accent">Sense</span></span></div>
         <div className="workspace-label">WORKSPACE</div>
-        <nav className="nav-list">
+        <nav className="nav-list" aria-label="Workspace navigation">
           {navItems.map(({ to, label, icon: Icon }) => (
-            <NavLink key={to} to={to} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+            <NavLink key={to} to={to} end={to === '/dashboard'} onClick={() => setSidebarOpen(false)} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
               <Icon size={17}/><span>{label}</span>
             </NavLink>
           ))}
@@ -36,8 +53,11 @@ export default function AppShell() {
       </aside>
       <main className="main-area">
         <header className="topbar">
-          <div className="breadcrumb"><span>Workspace</span><span className="crumb-sep">/</span><strong>Repository intelligence</strong></div>
-          <div className="top-actions"><span className="status-dot"/> <span className="status-text">All systems operational</span><button className="icon-button" aria-label="Settings"><Settings size={18}/></button></div>
+        <div className="topbar-leading">
+          <button className="icon-button menu-button" type="button" aria-label="Open navigation" aria-expanded={sidebarOpen} aria-controls="workspace-navigation" onClick={() => setSidebarOpen(true)}><Menu size={19}/></button>
+          <div className="breadcrumb"><span>Workspace</span><span className="crumb-sep">/</span><strong>{currentPage}</strong></div>
+        </div>
+          <div className="top-actions"><span className="status-dot" aria-hidden="true"/> <span className="status-text">Workspace ready</span><button className="icon-button" type="button" aria-label="Settings"><Settings size={18}/></button></div>
         </header>
         <div className="page-content"><Outlet /></div>
       </main>

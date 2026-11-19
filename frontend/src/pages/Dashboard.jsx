@@ -5,7 +5,8 @@ import {
   GitBranch,
   Plus,
   Sparkles,
-  Activity
+  Activity,
+  ShieldCheck
 } from 'lucide-react'
 
 import { Link } from 'react-router-dom'
@@ -43,15 +44,20 @@ export default function Dashboard() {
 
       <section className="welcome-row">
         <div>
-          <div className="eyebrow">DEVELOPER WORKSPACE</div>
+          <div className="eyebrow">YOUR REPOSITORY WORKSPACE</div>
           <h1>
-            Repository intelligence,{' '}
-            <span className="gradient-text">simplified.</span>
+            Understand a codebase,{' '}
+            <span className="gradient-text">one scan at a time.</span>
           </h1>
           <p>
-            Understand codebases faster with structured repository
-            analysis and AI-powered insights.
+            Review repository structure, languages, and project insights from
+            one focused workspace.
           </p>
+          <ul className="welcome-highlights" aria-label="Workspace capabilities">
+            <li><GitBranch size={14} /> GitHub repositories</li>
+            <li><Code2 size={14} /> Languages and structure</li>
+            <li><ShieldCheck size={14} /> Read-only analysis</li>
+          </ul>
         </div>
 
         <Link to="/analyze" className="button-primary">
@@ -95,7 +101,7 @@ export default function Dashboard() {
             <strong>No analysis activity yet</strong>
 
             <span>
-              Analyze a public GitBranch repository to start building
+              Analyze a public GitHub repository to start building
               your workspace.
             </span>
 
@@ -118,7 +124,7 @@ export default function Dashboard() {
             <span>01</span>
             <div>
               <strong>Connect a repository</strong>
-              <p>Paste a public GitBranch repository URL.</p>
+              <p>Paste a public GitHub repository URL.</p>
             </div>
           </div>
 
