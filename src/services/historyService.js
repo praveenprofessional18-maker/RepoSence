@@ -1,9 +1,8 @@
-import { mockDelay, useMocks } from "./api";
+import api, { mockDelay, useMocks } from "./api";
 import { mockHistory } from "../mock/store";
 import { sanitizeSensitiveContent } from "../utils/securityScanner";
 import { buildComparison } from "../utils/compareEngine";
 
-const HISTORY_KEY = "reposense_analysis_history";
 const MOCK_HEALTH_KEY = "reposense_mock_health_reports";
 const MOCK_SECURITY_KEY = "reposense_mock_security_reports";
 const MOCK_AI_ACTIONS_KEY = "reposense_mock_ai_action_cache";
@@ -129,31 +128,27 @@ function restoreMockSecurityReport(repository, savedReports = readMockSecurityRe
   return sanitizeSavedAnalysis(report ? { ...repository, securityReport: report } : repository);
 }
 
-function readLocalHistory() {
-  let parsed;
-  try {
-    parsed = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
-  } catch {
-    throw new Error("Saved analysis history could not be read. Clear the RepoSense history data in this browser and retry.");
-  }
-  if (!Array.isArray(parsed)) {
-    throw new Error("Saved analysis history has an invalid format. Clear the RepoSense history data in this browser and retry.");
-  }
-  const safeItems = parsed.map(sanitizeSavedAnalysis);
-  if (JSON.stringify(parsed) !== JSON.stringify(safeItems)) writeLocalHistory(safeItems);
-  return safeItems;
-}
-
-function writeLocalHistory(items) {
-  try {
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(items.map(sanitizeSavedAnalysis)));
-  } catch (error) {
-    throw new Error(`Could not save this analysis in browser storage. ${error.message}`);
-  }
-}
-
 function findMockHistory(id) {
   return mockHistory.find((item) => item.id === id);
+}
+
+function fromApiHistoryItem(item) {
+  const repository = item.repository || {};
+  return {
+    ...repository,
+    id: item.id,
+    analysisId: item.analysisId || item.id,
+    repositoryName: item.repositoryName,
+    fullName: item.fullName || repository.fullName || item.repositoryName,
+    description: item.description || repository.description || "",
+    language: item.language || repository.language || "Unknown",
+    stars: Number(item.stars ?? repository.stars ?? 0),
+    qualityScore: item.qualityScore,
+    securityScore: item.securityScore,
+    bookmarked: item.bookmarked,
+    analyzedAt: item.analyzedAt,
+    updatedAt: item.updatedAt
+  };
 }
 
 function readMockAiActionCaches() {
@@ -236,7 +231,7 @@ function restoreMockDocuments(repository, savedData = readMockDocumentData()) {
   });
 }
 
-function updateDocumentRecords(analysisId, updater) {
+async function updateDocumentRecords(analysisId, updater) {
   if (useMocks) {
     const repository = findMockHistory(analysisId);
     if (!repository) throw new Error("Analysis not found.");
@@ -258,16 +253,13 @@ function updateDocumentRecords(analysisId, updater) {
     return next;
   }
 
-  const items = readLocalHistory();
-  const index = items.findIndex((entry) => entry.id === analysisId);
-  if (index < 0) throw new Error("Analysis not found.");
+  const repository = await historyService.get(analysisId);
   const current = {
-    generatedDocuments: normalizeGeneratedDocuments(items[index].generatedDocuments),
-    documentVersions: normalizeDocumentVersions(items[index].documentVersions)
+    generatedDocuments: normalizeGeneratedDocuments(repository.generatedDocuments),
+    documentVersions: normalizeDocumentVersions(repository.documentVersions)
   };
   const next = updater(current);
-  items[index] = { ...items[index], ...next };
-  writeLocalHistory(items);
+  await historyService.save({ ...repository, ...next });
   return next;
 }
 
@@ -326,16 +318,25 @@ export const historyService = {
       const savedDocuments = readMockDocumentData();
       return mockDelay(mockHistory.map((item) => restoreMockDocuments(restoreMockAiActionCache(restoreMockSecurityReport(restoreMockHealthReport(item, savedReports), savedSecurityReports), savedAiActionCaches), savedDocuments)));
     }
-    return mockDelay(readLocalHistory());
+    const records = [];
+    let page = 1;
+    let pages = 1;
+    while (page <= pages) {
+      const response = await api.get("/api/history", { params: { page, limit: 100 } });
+      records.push(...response.data.data.map(fromApiHistoryItem));
+      pages = response.data.pagination.pages;
+      page += 1;
+    }
+    return records;
   },
   async get(id) {
-    const item = useMocks
-      ? findMockHistory(id)
-      : readLocalHistory().find((entry) => entry.id === id);
+    if (!useMocks) {
+      const response = await api.get(`/api/history/${encodeURIComponent(id)}`);
+      return fromApiHistoryItem(response.data.data);
+    }
+    const item = findMockHistory(id);
     if (!item) throw new Error("Analysis not found.");
-    return mockDelay(useMocks
-      ? restoreMockDocuments(restoreMockAiActionCache(restoreMockSecurityReport(restoreMockHealthReport(item))))
-      : item);
+    return mockDelay(restoreMockDocuments(restoreMockAiActionCache(restoreMockSecurityReport(restoreMockHealthReport(item)))));
   },
   async getGeneratedDocuments(analysisId) {
     if (!analysisId) throw new Error("An analysis ID is required to load generated documents.");
@@ -347,8 +348,7 @@ export const historyService = {
         ? repository.generatedDocuments
         : saved.generatedDocuments);
     }
-    const repository = readLocalHistory().find((entry) => entry.id === analysisId);
-    if (!repository) throw new Error("Analysis not found.");
+    const repository = await this.get(analysisId);
     return normalizeGeneratedDocuments(repository.generatedDocuments);
   },
   async saveGeneratedDocument(analysisId, document) {
@@ -359,7 +359,7 @@ export const historyService = {
       ...document,
       updatedAt: new Date().toISOString()
     });
-    const state = updateDocumentRecords(analysisId, (current) => {
+    const state = await updateDocumentRecords(analysisId, (current) => {
       const sameType = current.generatedDocuments.filter((entry) => entry.type === safeDocument.type);
       const otherTypes = current.generatedDocuments.filter((entry) => entry.type !== safeDocument.type);
       const nextForType = [
@@ -383,8 +383,7 @@ export const historyService = {
         ? repository.documentVersions
         : saved.documentVersions);
     }
-    const repository = readLocalHistory().find((entry) => entry.id === analysisId);
-    if (!repository) throw new Error("Analysis not found.");
+    const repository = await this.get(analysisId);
     return normalizeDocumentVersions(repository.documentVersions);
   },
   async saveDocumentVersion(analysisId, version) {
@@ -397,7 +396,7 @@ export const historyService = {
       label: String(version.label || "Saved version").slice(0, 80),
       createdAt: version.createdAt || new Date().toISOString()
     });
-    const state = updateDocumentRecords(analysisId, (current) => ({
+    const state = await updateDocumentRecords(analysisId, (current) => ({
       ...current,
       documentVersions: [safeVersion, ...current.documentVersions.filter((entry) => entry.id !== safeVersion.id)].slice(0, 50)
     }));
@@ -406,18 +405,18 @@ export const historyService = {
   async renameDocumentVersion(analysisId, versionId, label) {
     const nextLabel = String(label || "").trim().slice(0, 80);
     if (!nextLabel) throw new Error("Enter a name for this version.");
-    return updateDocumentRecords(analysisId, (current) => ({
+    return (await updateDocumentRecords(analysisId, (current) => ({
       ...current,
       documentVersions: current.documentVersions.map((entry) => entry.id === versionId
         ? { ...entry, label: nextLabel }
         : entry)
-    })).documentVersions;
+    }))).documentVersions;
   },
   async removeDocumentVersion(analysisId, versionId) {
-    return updateDocumentRecords(analysisId, (current) => ({
+    return (await updateDocumentRecords(analysisId, (current) => ({
       ...current,
       documentVersions: current.documentVersions.filter((entry) => entry.id !== versionId)
-    })).documentVersions;
+    }))).documentVersions;
   },
   async countGeneratedDocuments() {
     const repositories = await this.list();
@@ -431,8 +430,7 @@ export const historyService = {
       const caches = readMockAiActionCaches();
       return normalizeAiCacheEntries(repository.aiActionCache || caches[analysisId] || []);
     }
-    const repository = readLocalHistory().find((entry) => entry.id === analysisId);
-    if (!repository) throw new Error("Analysis not found.");
+    const repository = await this.get(analysisId);
     return normalizeAiCacheEntries(repository.aiActionCache);
   },
   async saveAiActionResult(analysisId, result) {
@@ -450,11 +448,8 @@ export const historyService = {
       if (repository) repository.aiActionCache = next;
       return next;
     }
-    const items = readLocalHistory();
-    const index = items.findIndex((entry) => entry.id === analysisId);
-    if (index < 0) throw new Error("Analysis not found.");
-    items[index] = { ...items[index], aiActionCache: next };
-    writeLocalHistory(items);
+    const repository = await this.get(analysisId);
+    await this.save({ ...repository, aiActionCache: next });
     return next;
   },
   async removeAiActionResult(analysisId, cacheKey) {
@@ -467,11 +462,8 @@ export const historyService = {
       if (repository) repository.aiActionCache = next;
       return next;
     }
-    const items = readLocalHistory();
-    const index = items.findIndex((entry) => entry.id === analysisId);
-    if (index < 0) throw new Error("Analysis not found.");
-    items[index] = { ...items[index], aiActionCache: next };
-    writeLocalHistory(items);
+    const repository = await this.get(analysisId);
+    await this.save({ ...repository, aiActionCache: next });
     return next;
   },
   async clearAiActionCache(analysisId) {
@@ -483,11 +475,8 @@ export const historyService = {
       if (repository) repository.aiActionCache = [];
       return [];
     }
-    const items = readLocalHistory();
-    const index = items.findIndex((entry) => entry.id === analysisId);
-    if (index < 0) throw new Error("Analysis not found.");
-    items[index] = { ...items[index], aiActionCache: [] };
-    writeLocalHistory(items);
+    const repository = await this.get(analysisId);
+    await this.save({ ...repository, aiActionCache: [] });
     return [];
   },
   async countAiActions() {
@@ -495,9 +484,7 @@ export const historyService = {
     return repositories.reduce((count, repository) => count + normalizeAiCacheEntries(repository.aiActionCache).length, 0);
   },
   async save(repository) {
-    const existingRecord = useMocks
-      ? findMockHistory(repository.id)
-      : readLocalHistory().find((item) => item.id === repository.id);
+    const existingRecord = useMocks ? findMockHistory(repository.id) : null;
     const existingCache = existingRecord?.aiActionCache || (useMocks ? readMockAiActionCaches()[repository.id] : []) || [];
     const savedDocuments = useMocks ? readMockDocumentData()[repository.id] || {} : {};
     const record = sanitizeSavedAnalysis({
@@ -517,12 +504,9 @@ export const historyService = {
       return mockDelay(record, 0);
     }
 
-    const items = readLocalHistory();
-    const index = items.findIndex((item) => item.id === record.id);
-    if (index >= 0) items[index] = record;
-    else items.unshift(record);
-    writeLocalHistory(items);
-    return record;
+    const analysisId = record.analysisId || record.id;
+    const response = await api.patch(`/api/history/${encodeURIComponent(analysisId)}`, { data: record });
+    return fromApiHistoryItem(response.data.data);
   },
   async remove(id) {
     if (useMocks) {
@@ -564,8 +548,7 @@ export const historyService = {
       return { success: true };
     }
 
-    const items = readLocalHistory();
-    writeLocalHistory(items.filter((item) => item.id !== id));
-    return { success: true };
+    const response = await api.delete(`/api/history/${encodeURIComponent(id)}`);
+    return response.data;
   }
 };

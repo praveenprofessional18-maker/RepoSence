@@ -1,6 +1,6 @@
 import { getRepo, repositories } from "../mock/data";
 import { historyService } from "./historyService";
-import { mockDelay, useMocks } from "./api";
+import api, { mockDelay, useMocks } from "./api";
 import { parseImportGraph, SOURCE_EXTENSION } from "../utils/importParser";
 import { analyzeHealth } from "../utils/healthAnalyzer";
 import { createMockHealthReport } from "../mock/healthData";
@@ -679,7 +679,12 @@ async function getRepositorySecurityReport(analysisId, onProgress = () => {}, { 
 
 export const repoService = {
   async analyze(url) {
-    if (!useMocks) return analyzeGitHub(url);
+    if (!useMocks) {
+      const response = await api.post("/api/github/analyze", { url });
+      const repository = response.data.data;
+      if (!repository.analysisId) throw new Error("The analysis could not be saved to your account.");
+      return { ...repository, id: repository.analysisId };
+    }
     await mockDelay(true, 900);
     const slug = url.replace(/\/+$/, "").split("/").slice(-2).join("/").toLowerCase();
     const repo = repositories.find((item) => item.fullName.toLowerCase() === slug) || {
@@ -701,7 +706,7 @@ export const repoService = {
     if (saved) return saved;
     const separator = id.indexOf("~");
     if (separator <= 0) throw new Error("Analysis not found. Try analyzing the public repository again.");
-    return analyzeGitHub(`https://github.com/${id.slice(0, separator)}/${id.slice(separator + 1)}`);
+    return this.analyze(`https://github.com/${id.slice(0, separator)}/${id.slice(separator + 1)}`);
   },
   async getComparison(idA, idB) {
     return historyService.getComparison(idA, idB);

@@ -11,3 +11,6 @@ export const historyQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).optional().default(20)
 });
 export const bookmarkSchema = z.object({ bookmarked: z.boolean() });
+export const historyDataSchema = z.object({
+  data: z.record(z.string(), z.unknown())
+});

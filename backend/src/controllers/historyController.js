@@ -5,9 +5,10 @@ import { logActivity } from "../utils/activity.js";
 
 function toHistoryItem(record) {
   const data = record.data || {};
+  const id = String(record._id || record.id);
   return {
-    id: record.id,
-    analysisId: record.id,
+    id,
+    analysisId: id,
     repositoryName: record.repositoryName,
     fullName: data.fullName || record.repositoryName,
     description: data.description || record.summary || "",
@@ -74,6 +75,20 @@ export async function updateBookmark(req, res) {
     entityType: "analysis",
     entityId: record._id
   });
+  res.json({ success: true, data: toHistoryItem(record) });
+}
+
+export async function updateHistoryData(req, res) {
+  const record = await Analysis.findOneAndUpdate(
+    { _id: req.validated.params.id, owner: req.user._id },
+    { $set: { data: req.validated.body.data } },
+    { new: true, runValidators: true }
+  ).lean();
+  if (!record) {
+    const error = new Error("Analysis not found.");
+    error.statusCode = 404;
+    throw error;
+  }
   res.json({ success: true, data: toHistoryItem(record) });
 }
 

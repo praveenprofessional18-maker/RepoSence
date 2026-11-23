@@ -4,6 +4,7 @@ import { Bookmark, CalendarDays, ChevronDown, ChevronRight, Copy, Download, Exte
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import toast from "react-hot-toast";
 import { historyService } from "../services/historyService";
+import { useAuth } from "../context/AuthContext";
 import { aiService } from "../services/aiService";
 import { repoService } from "../services/repoService";
 import { sanitizeSensitiveContent } from "../utils/securityScanner";
@@ -510,6 +511,7 @@ function ReadmeTab({ repo, onRepositoryUpdated }) {
 
 export default function Workspace() {
   const { id } = useParams();
+  const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const guardedNavigate = (to) => {
@@ -523,7 +525,16 @@ export default function Workspace() {
   const [showDelete, setShowDelete] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
   const [includeDocumentsInExport, setIncludeDocumentsInExport] = useState(false);
-  useEffect(() => { let active=true; setLoading(true); historyService.get(id).then((value)=>{if(active)setRepo(value);}).catch((e)=>{if(active)setError(e.message);}).finally(()=>{if(active)setLoading(false);}); return ()=>{active=false;}; },[id]);
+  useEffect(() => {
+    let active = true;
+    setRepo(null);
+    setError("");
+    setLoading(true);
+    historyService.get(id).then((value) => { if (active) setRepo(value); })
+      .catch((e) => { if (active) setError(e.message); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [id, user?.id]);
   useEffect(() => {
     if (repo) setBookmarked(readBookmarks().includes(repo.id));
   }, [repo?.id]);

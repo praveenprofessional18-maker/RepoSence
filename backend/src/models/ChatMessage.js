@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const chatMessageSchema = new mongoose.Schema({
-  owner: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null, index: true },
+  owner: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, index: true },
   analysis: { type: mongoose.Schema.Types.ObjectId, ref: "Analysis", default: null, index: true },
   role: { type: String, enum: ["user", "assistant"], required: true },
   content: { type: String, required: true, maxlength: 12000 },

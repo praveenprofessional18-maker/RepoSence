@@ -19,6 +19,6 @@ api.interceptors.response.use(
   }
 );
 
-export const useMocks = import.meta.env.VITE_USE_MOCK !== "false";
+export const useMocks = import.meta.env.VITE_USE_MOCK === "true";
 export const mockDelay = (value, ms = 450) => new Promise((resolve) => setTimeout(() => resolve(structuredClone(value)), ms));
 export default api;

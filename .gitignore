@@ -12,3 +12,8 @@ backend/dist/
 *.log
 .DS_Store
 .vscode/
+
+.vite/
+node_modules/
+.env
+*.log

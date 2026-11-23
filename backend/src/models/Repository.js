@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const repositorySchema = new mongoose.Schema({
-  owner: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null, index: true },
+  owner: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, index: true },
   githubId: { type: Number, required: true, index: true },
   fullName: { type: String, required: true, trim: true },
   ownerName: { type: String, required: true, trim: true },
