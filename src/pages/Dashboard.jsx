@@ -9,7 +9,6 @@ import { Button, EmptyState, ErrorState, Input, Skeleton } from "../components/c
 import StatCard from "../components/dashboard/StatCard";
 
 const COLORS = ["#8b5cf6", "#6366f1", "#22c55e", "#f59e0b", "#ec4899"];
-const trend = [{ date:"Feb 10",count:2 },{ date:"Feb 12",count:4 },{ date:"Feb 14",count:3 },{ date:"Feb 16",count:6 },{ date:"Feb 18",count:5 },{ date:"Feb 20",count:8 },{ date:"Feb 22",count:7 }];
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -21,8 +20,23 @@ export default function Dashboard() {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const trend = repos.reduce((days, repo) => {
+    const analyzedAt = new Date(repo.analyzedAt);
+    if (Number.isNaN(analyzedAt.getTime())) return days;
+    const date = analyzedAt.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+    const existing = days.find((item) => item.date === date);
+    if (existing) existing.count += 1;
+    else days.push({ date, count: 1, timestamp: analyzedAt.getTime() });
+    return days;
+  }, []).sort((left, right) => left.timestamp - right.timestamp);
   useEffect(() => {
     let active = true;
+    setRepos([]);
+    setSavedComparisonCount(0);
+    setAiActionsRun(0);
+    setDocumentsGenerated(0);
+    setLoading(true);
+    setError("");
     Promise.all([historyService.list(), historyService.listComparisons(), historyService.countAiActions(), historyService.countGeneratedDocuments()]).then(([items, comparisons, actionCount, documentCount]) => {
       if (active) {
         setRepos(items);
@@ -32,7 +46,7 @@ export default function Dashboard() {
       }
     }).catch((e) => { if (active) setError(e.message); }).finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, []);
+  }, [user?.id]);
   const analyze = (event) => {
     event.preventDefault();
     if (!url.trim()) { toast.error("Paste a GitHub repository URL first"); return; }

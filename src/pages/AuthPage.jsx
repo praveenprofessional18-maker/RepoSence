@@ -4,6 +4,7 @@ import { Eye, EyeOff, Github, Sparkles } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
 import { Button, Input } from "../components/common";
+import { useMocks } from "../services/api";
 
 export default function AuthPage({ mode }) {
   const registerMode = mode === "register";
@@ -41,7 +42,7 @@ export default function AuthPage({ mode }) {
       {registerMode && <div className="auth-field"><label htmlFor="confirm">Confirm password</label><Input id="confirm" type="password" autoComplete="new-password" value={form.confirm} onChange={(e) => update("confirm", e.target.value)} placeholder="Enter your password again" error={errors.confirm} /></div>}
       {!registerMode && <label className="checkline"><input type="checkbox" defaultChecked /> Remember me</label>}
       <Button className="auth-submit" type="submit" disabled={loading}>{loading ? "Please wait..." : registerMode ? "Create account" : "Sign in"}</Button>
-      <div className="auth-divider">or</div><Button variant="secondary" className="w-full" type="button" onClick={guest}>Continue as guest</Button>
+      {useMocks && <><div className="auth-divider">or</div><Button variant="secondary" className="w-full" type="button" onClick={guest}>Continue as guest</Button></>}
       <div className="auth-switch">{registerMode ? "Already have an account? " : "New to RepoSense? "}<Link to={registerMode ? "/login" : "/register"}>{registerMode ? "Sign in" : "Create an account"}</Link></div>
     </form></section></main>;
 }

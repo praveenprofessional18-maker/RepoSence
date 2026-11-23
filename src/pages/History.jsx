@@ -2,11 +2,13 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Grid2X2, List } from "lucide-react";
 import toast from "react-hot-toast";
+import { useAuth } from "../context/AuthContext";
 import { historyService } from "../services/historyService";
 import { ConfirmModal, EmptyState, ErrorState, SearchInput, Skeleton } from "../components/common";
 import RepoCard from "../components/history/RepoCard";
 
 export default function History() {
+  const {user}=useAuth();
   const navigate=useNavigate();
   const [items,setItems]=useState([]);
   const [loading,setLoading]=useState(true);
@@ -21,7 +23,16 @@ export default function History() {
   const [selectedIds,setSelectedIds]=useState([]);
   const pageSize=6;
   const load=()=>{setLoading(true);historyService.list().then(setItems).catch((e)=>setError(e.message)).finally(()=>setLoading(false));};
-  useEffect(()=>{load();},[]);
+  useEffect(()=>{
+    let active=true;
+    setItems([]);
+    setSelectedIds([]);
+    setPage(1);
+    setLoading(true);
+    setError("");
+    historyService.list().then((nextItems)=>{if(active)setItems(nextItems);}).catch((e)=>{if(active)setError(e.message);}).finally(()=>{if(active)setLoading(false);});
+    return ()=>{active=false;};
+  },[user?.id]);
   const filtered=useMemo(()=>{
     const now=Date.now();
     const list=items.filter((repo)=>{

@@ -193,7 +193,8 @@ export async function analyze(req, res) {
             license: repositoryData.license,
             defaultBranch: repo.default_branch
           }
-        }
+        },
+        $setOnInsert: { owner: req.user._id }
       },
       { new: true, upsert: true, setDefaultsOnInsert: true }
     );

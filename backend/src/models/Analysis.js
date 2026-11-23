@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const analysisSchema = new mongoose.Schema({
-  owner: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null, index: true },
+  owner: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, index: true },
   repository: { type: mongoose.Schema.Types.ObjectId, ref: "Repository", required: true, index: true },
   repositoryName: { type: String, required: true, trim: true },
   summary: { type: String, default: "" },

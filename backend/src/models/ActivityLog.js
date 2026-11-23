@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const activityLogSchema = new mongoose.Schema({
-  owner: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null, index: true },
+  owner: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, index: true },
   action: { type: String, required: true, maxlength: 80 },
   entityType: { type: String, enum: ["user", "repository", "analysis", "chat"], default: "analysis" },
   entityId: { type: mongoose.Schema.Types.ObjectId, default: null },
